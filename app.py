@@ -25,7 +25,21 @@ db = firestore.client()
 def index():
     return 'API - CATRACA'
 
-# GET - ALUNO POR CPF
+#GET - LISTAR ALUNOS
+@app.route('/alunos/lista', methods=['GET'])
+def alunos_lista():
+    alunos = []
+    lista = db.collection('alunos').stream()
+
+    for item in lista:
+        alunos.append(item.to_dict())
+    
+    if alunos:
+        return jsonify(alunos), 200
+    else:
+        return jsonify({'mensagem':'Erro! Nenhuma aluno encontrado.'}), 404
+
+#GET - ALUNO POR ID
 @app.route('/alunos/<id>', methods=['GET'])
 def verificacao(id):
     doc_ref = db.collection('alunos').document(id)
@@ -34,9 +48,9 @@ def verificacao(id):
     if doc:
         return jsonify(doc), 200
     else:
-        return jsonify({'mensagem': 'Erro! Esse CPF não está cadastrado.'}), 404
+        return jsonify({'mensagem': 'Erro! Esse ID não existe.'}), 404
 
-# POST - CADASTRAR UM ALUNO
+#POST - CADASTRAR UM ALUNO
 @app.route('/alunos', methods=['POST'])
 def cadastrar_aluno():
     dados = request.json
@@ -64,7 +78,7 @@ def cadastrar_aluno():
     return jsonify({'mensagem': 'Aluno cadastrado com sucesso!'}), 201
 
 
-# PUT - EDITAR ALUNO
+#PUT - EDITAR ALUNO
 @app.route('/alunos/<id>', methods=['PUT'])
 def editar_aluno(id):
     dados = request.json
@@ -85,7 +99,7 @@ def editar_aluno(id):
     else:
         return jsonify({'mensagem': 'ERRO! ID não encontrado.'}), 404
 
-# DELETE - EXCLUIR ALUNO
+#DELETE - EXCLUIR ALUNO
 @app.route('/alunos/<id>', methods=['DELETE'])
 def excluir_aluno(id):
     doc_ref = db.collection('alunos').document(id)
