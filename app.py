@@ -55,7 +55,7 @@ def verificacao(id):
 def cadastrar_aluno():
     dados = request.json
 
-    if "nome" not in dados or "cpf" not in dados or "status" not in dados:
+    if "nome" not in dados or "cpf" not in dados:
         return jsonify({'mensagem': 'Erro! Todos os campos são obrigatórios.'}), 400
     
     status = dados['status']
@@ -83,7 +83,7 @@ def cadastrar_aluno():
 def editar_aluno(id):
     dados = request.json
 
-    if "nome" not in dados or "cpf" not in dados or "status" not in dados:
+    if "nome" not in dados or "cpf" not in dados:
         return jsonify({'mensagem': 'Erro! Todos os campos são obrigatórios.'}), 400
 
     doc_ref = db.collection('alunos').document(id)
