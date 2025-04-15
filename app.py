@@ -37,7 +37,7 @@ def alunos_lista():
     if alunos:
         return jsonify(alunos), 200
     else:
-        return jsonify({'mensagem':'Erro! Nenhuma aluno encontrado.'}), 404
+        return jsonify({'mensagem':'Erro! Nenhum aluno encontrado.'}), 404
 
 #GET - ALUNO POR ID
 @app.route('/alunos/<id>', methods=['GET'])
