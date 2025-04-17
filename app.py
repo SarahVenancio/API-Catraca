@@ -58,9 +58,8 @@ def cadastrar_aluno():
     if "nome" not in dados or "cpf" not in dados:
         return jsonify({'mensagem': 'Erro! Todos os campos são obrigatórios.'}), 400
     
-    status = dados['status']
-    if isinstance(status, str):
-        status = status.lower() == 'true'
+    # Define o status como True automaticamente
+    status = True
 
     contador_ref = db.collection('controle_id').document('contador')
     contador_doc = contador_ref.get().to_dict()
@@ -69,7 +68,7 @@ def cadastrar_aluno():
     contador_ref.update({'id': novo_id})
 
     db.collection('alunos').document(str(novo_id)).set({
-        "id":novo_id,
+        "id": novo_id,
         "nome": dados['nome'],
         "cpf": dados['cpf'],
         "status": status
@@ -77,27 +76,35 @@ def cadastrar_aluno():
 
     return jsonify({'mensagem': 'Aluno cadastrado com sucesso!'}), 201
 
-
 #PUT - EDITAR ALUNO
 @app.route('/alunos/<id>', methods=['PUT'])
-def editar_aluno(id):
-    dados = request.json
-
-    if "nome" not in dados or "cpf" not in dados:
-        return jsonify({'mensagem': 'Erro! Todos os campos são obrigatórios.'}), 400
-
+def atualizar_aluno(id):
     doc_ref = db.collection('alunos').document(id)
     doc = doc_ref.get()
 
-    if doc:
-        doc_ref.update({
-            "nome": dados['nome'],
-            "cpf": dados['cpf'],
-            "status": dados['status']
-        })
-        return jsonify({'mensagem': 'Aluno atualizado com sucesso!'}), 201
-    else:
-        return jsonify({'mensagem': 'ERRO! ID não encontrado.'}), 404
+    if not doc:
+        return jsonify({'mensagem': 'Aluno não encontrado.'}), 404
+
+    dados = request.get_json()
+    if not dados or not all(k in dados for k in ("nome", "cpf")):
+        return jsonify({'mensagem': 'Erro! Campos nome e cpf são obrigatórios.'}), 400
+
+    nome = dados['nome']
+    cpf = dados['cpf']
+    status = dados.get('status')
+
+    if isinstance(status, str):
+        status = status.lower() == 'true'
+
+    update_data = {
+        "nome": nome,
+        "cpf": cpf,
+        "status": status
+    }
+
+    doc_ref.update(update_data)
+    return jsonify({'mensagem': 'Aluno atualizado com sucesso!'}), 200
+
 
 #DELETE - EXCLUIR ALUNO
 @app.route('/alunos/<id>', methods=['DELETE'])
