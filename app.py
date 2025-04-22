@@ -45,7 +45,7 @@ def verificacao(id):
     doc_ref = db.collection('alunos').document(id)
     doc = doc_ref.get()
 
-    if doc.exists:
+    if doc:
         return jsonify(doc.to_dict()), 200
     else:
         return jsonify({'mensagem': 'Erro! Esse ID não existe.'}), 404
@@ -82,7 +82,7 @@ def atualizar_aluno(id):
     doc_ref = db.collection('alunos').document(id)
     doc = doc_ref.get()
 
-    if not doc.exists:
+    if not doc:
         return jsonify({'mensagem': 'Aluno não encontrado.'}), 404
 
     dados = request.get_json()
@@ -111,7 +111,7 @@ def alterar_status(id):
     doc_ref = db.collection('alunos').document(id)
     doc = doc_ref.get()
 
-    if not doc.exists:
+    if not doc:
         return jsonify({'mensagem': 'Aluno não encontrado.'}), 404
 
     dados = request.get_json()
@@ -133,7 +133,7 @@ def excluir_aluno(id):
     doc_ref = db.collection('alunos').document(id)
     doc = doc_ref.get()
 
-    if not doc.exists:
+    if not doc:
         return jsonify({'mensagem': 'ERRO! Aluno não encontrado!'}), 404
 
     doc_ref.delete()
