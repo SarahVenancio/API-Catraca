@@ -25,7 +25,7 @@ db = firestore.client()
 def index():
     return 'API - CATRACA'
 
-#GET - LISTAR ALUNOS
+# GET - LISTAR ALUNOS
 @app.route('/alunos/lista', methods=['GET'])
 def alunos_lista():
     alunos = []
@@ -39,18 +39,18 @@ def alunos_lista():
     else:
         return jsonify({'mensagem':'Erro! Nenhum aluno encontrado.'}), 404
 
-#GET - ALUNO POR ID
+# GET - ALUNO POR ID
 @app.route('/alunos/<id>', methods=['GET'])
 def verificacao(id):
     doc_ref = db.collection('alunos').document(id)
-    doc = doc_ref.get().to_dict()
+    doc = doc_ref.get()
 
-    if doc:
-        return jsonify(doc), 200
+    if doc.exists:
+        return jsonify(doc.to_dict()), 200
     else:
         return jsonify({'mensagem': 'Erro! Esse ID não existe.'}), 404
 
-#POST - CADASTRAR UM ALUNO
+# POST - CADASTRAR UM ALUNO
 @app.route('/alunos', methods=['POST'])
 def cadastrar_aluno():
     dados = request.json
@@ -76,13 +76,13 @@ def cadastrar_aluno():
 
     return jsonify({'mensagem': 'Aluno cadastrado com sucesso!'}), 201
 
-#PUT - EDITAR ALUNO
+# PUT - EDITAR ALUNO (nome, cpf e status)
 @app.route('/alunos/<id>', methods=['PUT'])
 def atualizar_aluno(id):
     doc_ref = db.collection('alunos').document(id)
     doc = doc_ref.get()
 
-    if not doc:
+    if not doc.exists:
         return jsonify({'mensagem': 'Aluno não encontrado.'}), 404
 
     dados = request.get_json()
@@ -105,14 +105,35 @@ def atualizar_aluno(id):
     doc_ref.update(update_data)
     return jsonify({'mensagem': 'Aluno atualizado com sucesso!'}), 200
 
+# PATCH - ALTERAR APENAS O STATUS DO ALUNO
+@app.route('/alunos/status/<id>', methods=['PATCH'])
+def alterar_status(id):
+    doc_ref = db.collection('alunos').document(id)
+    doc = doc_ref.get()
 
-#DELETE - EXCLUIR ALUNO
+    if not doc.exists:
+        return jsonify({'mensagem': 'Aluno não encontrado.'}), 404
+
+    dados = request.get_json()
+    if 'status' not in dados:
+        return jsonify({'mensagem': 'Erro! O campo status é obrigatório.'}), 400
+
+    status = dados['status']
+
+    if isinstance(status, str):
+        status = status.lower() == 'true'
+
+    doc_ref.update({"status": status})
+
+    return jsonify({'mensagem': 'Status atualizado com sucesso!'}), 200
+
+# DELETE - EXCLUIR ALUNO
 @app.route('/alunos/<id>', methods=['DELETE'])
 def excluir_aluno(id):
     doc_ref = db.collection('alunos').document(id)
     doc = doc_ref.get()
 
-    if not doc:
+    if not doc.exists:
         return jsonify({'mensagem': 'ERRO! Aluno não encontrado!'}), 404
 
     doc_ref.delete()
